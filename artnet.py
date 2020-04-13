@@ -11,6 +11,7 @@ import torch.optim as optim
 
 class SquarePool(nn.Module):
     """Square Pooling Layer"""
+    #将每一个元素变为原来的平方
     def __init__(self):
         super(SquarePool, self).__init__()
 
@@ -41,7 +42,7 @@ class SMART(nn.Module):
 
         # Convolution params for appearance branch to make Conv3D operates like Conv2D
         app_kernel = list(kernel[:2])
-        app_kernel.append(1)
+        app_kernel.append(1) #将3D卷积的kernal的时间维度设置为1，相当于转换成了2D卷积。
         app_padding = list(padding[:2])
         app_padding.append(0)
 
@@ -50,12 +51,13 @@ class SMART(nn.Module):
             nn.BatchNorm3d(64),
         )
 
+        #Reduction操作
         self.reduction = nn.Conv3d(64 + 32, out_channels, kernel_size=(1,1,1), bias=False)
 
     def forward(self, x):
         x_rel = self.relation(x)
         x_app = self.appearance(x)
-        out = torch.cat((x_rel, x_app), dim=1)
+        out = torch.cat((x_rel, x_app), dim=1)#将appearance和relation进行拼接。
         out = F.relu(out)
         out = self.reduction(out)
         return out
@@ -83,7 +85,7 @@ class ARTNet(nn.Module):
 
         # Conv1
         self.conv1 = SMART(3, 64, kernel=(7,7,3), stride=(2,2,2), padding=(3, 3, 1))
-        self.conv1_bn = nn.BatchNorm3d(64)
+        self.conv1_bn = nn.BatchNorm3d(64) #BatchNorm3d()的输入参数为通道的数量
 
         # Conv2
         self.conv2_1 = C3D_SMART(64, 64, kernel=(3,3,3), stride=(1,1,1), padding=(1,1,1))
@@ -122,7 +124,7 @@ class ARTNet(nn.Module):
         )
         self.resnet5b_bn = nn.BatchNorm3d(512)
 
-        # Global Pool
+        # Global Pool，全局平均池化
         self.avgpool = nn.AvgPool3d(kernel_size=(7,7,1), stride=(1,1,1))
         self.dropout = nn.Dropout3d(p=0.2)
 
@@ -135,7 +137,7 @@ class ARTNet(nn.Module):
         if downsample is not None:
             identity = downsample(identity)
 
-        input += identity
+        input += identity #加上残差
         identity = input
         input = bn(input)
         input = F.relu(input)
@@ -147,7 +149,7 @@ class ARTNet(nn.Module):
 
     def forward(self, x):
         x = x.view(x.shape[0], x.shape[2], x.shape[3], x.shape[4], x.shape[1])
-
+        print("x.reshape:",x.size())#[N,C,W,H,T]即：[N,3,112,112,16]
         # Conv1
         x = self.conv1(x)
         identity = x
