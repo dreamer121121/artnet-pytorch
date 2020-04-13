@@ -45,7 +45,6 @@ class VideoFramesDataset(data.Dataset):
 
     def __getitem__(self, index):
         sample = self.samples[index]
-        print("video_name",sample[0])
         frame_paths = [os.path.join(sample[0], f) for f in os.listdir(sample[0])] #一段视频中的所有帧
 
         if self.frame_num > 1:

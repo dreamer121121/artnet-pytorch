@@ -132,7 +132,6 @@ def train(params, train_loader, validation_loader):
             prediction = F.softmax(output, dim=1)
             prediction = prediction.argmax(dim=1)
             prediction, label = prediction.to('cpu'), label.to('cpu')
-            log("prediction:{},label:{}",(prediction,label),file=log_stream)
             correct += prediction.eq(torch.LongTensor(label)).sum()
 
         else:
@@ -160,7 +159,6 @@ def train(params, train_loader, validation_loader):
                 # Calculating accuracy
                 _, prediction = output.max(dim=1)
                 prediction, label = prediction.to('cpu'), label.to('cpu')
-                log("prediction:{},label:{}",(prediction,label),file=log_stream)
                 correct += prediction.eq(torch.LongTensor(label)).sum()
             else:
                 avg_loss = validating_loss / len(validation_loader)
