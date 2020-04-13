@@ -79,7 +79,7 @@ def load_data(params):
 def train(params, train_loader, validation_loader):
     artnet = ARTNet(num_classes=params.getint('num_classes'))
     # device = 'cuda'
-    device = 'gpu'
+    device = 'cuda'
 
     # Load pretrained model
     if 'pretrained' in params and params['pretrained'] != 'None':
