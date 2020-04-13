@@ -31,7 +31,7 @@ def main():
     #加载数据
     train_loader, validation_loader = load_data(config['Train Data']) #返回数据生成器
     train_losses, val_losses = train(config['Train'], train_loader, validation_loader)
-    # save_result(train_losses, val_losses, config['Train Result'])
+    save_result(train_losses, val_losses, config['Train Result'])
 
 def load_data(params):
     """Load data for training"""
