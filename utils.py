@@ -4,6 +4,15 @@ import os
 import numpy as np
 from torch.utils.data import DataLoader, SubsetRandomSampler
 
+def log(*args, file=None):
+    """log to a file and console"""
+    if file:
+        print(*args, file=file)
+        file.flush()
+    print(*args)
+    sys.stdout.flush()
+
+
 def one_hot_encode(index, num):
     vector = [0 for _ in range(num)]
     vector[index] = 1

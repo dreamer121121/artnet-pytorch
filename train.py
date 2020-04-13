@@ -14,9 +14,12 @@ from configparser import ConfigParser
 import argparse
 
 import utils
+from utils import log
 from video_dataset import VideoFramesDataset
 from artnet import ARTNet
 
+log_file = "spatial.log"
+log_stream = open("spatial.log", "a")
 # Chnage mpl backend
 matplotlib.use('Agg')
 
@@ -36,7 +39,7 @@ def main():
 def load_data(params):
     """Load data for training"""
 
-    print('Loading data...')
+    log('Loading data...',file=log_stream)
     #数据增广方式
     transform = transforms.Compose([
         transforms.Resize((params.getint('width'), params.getint('height'))),
@@ -67,13 +70,13 @@ def load_data(params):
     #注意此处训练集和验证集都传入的是train_set，通过采样器来进行划分训练集和验证集
     train_loader = DataLoader(train_set, batch_size=batch_size, sampler=train_sampler)
     validation_loader = DataLoader(train_set, batch_size=batch_size, sampler=valid_sampler)
-    print('Done loading data')
+    log('Done loading data',file=log_stream)
 
-    print('****Dataset info****')
-    print(f'Number of classes: {train_set.num_classes}')
-    print(f'Class list: {", ".join(train_set.cls_lst)}')
-    print(f'Numer of training samples: {len(train_loader) * batch_size}')
-    print(f'Numer of validation samples: {len(validation_loader) * batch_size}')
+    log('****Dataset info****',file=log_stream)
+    log(f'Number of classes: {train_set.num_classes}',file=log_stream)
+    log(f'Class list: {", ".join(train_set.cls_lst)}',file=log_stream)
+    log(f'Numer of training samples: {len(train_loader) * batch_size}',file=log_stream)
+    log(f'Numer of validation samples: {len(validation_loader) * batch_size}',file=log_stream)
     return train_loader, validation_loader
 
 def train(params, train_loader, validation_loader):
@@ -104,8 +107,8 @@ def train(params, train_loader, validation_loader):
     scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=lr_steps, gamma=0.1)
 
     for epoch in range(params.getint('num_epochs')):
-        print('Starting epoch %i:' % (epoch + 1))
-        print('*********Training*********')
+        log('Starting epoch %i:' % (epoch + 1),log_stream)
+        log('*********Training*********',file=log_stream)
         artnet.train()
         training_loss = 0
         training_losses = []
@@ -135,10 +138,10 @@ def train(params, train_loader, validation_loader):
             avg_loss = training_loss / len(train_loader)
             accuracy = correct / (len(train_loader) * train_loader.batch_size)
             training_losses.append(avg_loss)
-            print(f'Training loss: {avg_loss}')
-            print(f'Training accuracy: {accuracy:0.2f}')
+            log(f'Training loss: {avg_loss}',file=log_stream)
+            log(f'Training accuracy: {accuracy:0.2f}',file=log_stream)
 
-        print('*********Validating*********')
+        log('*********Validating*********',file=log_stream)
         artnet.eval()
         validating_loss = 0
         validating_losses = []
@@ -161,18 +164,18 @@ def train(params, train_loader, validation_loader):
                 avg_loss = validating_loss / len(validation_loader)
                 accuracy = correct / (len(train_loader) * validation_loader.batch_size)
                 validating_losses.append(avg_loss)
-                print(f'Validation loss: {avg_loss}')
-                print(f'Validation accuracy: {accuracy:0.2f}')
-        print('=============================================')
-        print('Epoch %i complete' % (epoch + 1))
+                log(f'Validation loss: {avg_loss}',file=log_stream)
+                log(f'Validation accuracy: {accuracy:0.2f}',file=log_stream)
+        log('=============================================',file=log_stream)
+        log('Epoch %i complete' % (epoch + 1),file=log_stream)
 
         if (epoch + 1) % params.getint('ckpt') == 0:
-            print('Saving checkpoint...' )
+            log('Saving checkpoint...' ,file=log_stream)
             torch.save(artnet.state_dict(), os.path.join(params['ckpt_path'], 'artnet_%i.pth' % (epoch + 1)))
 
         # Update LR
         scheduler.step()
-    print('Training complete, saving final model....')
+    log('Training complete, saving final model....',file=log_stream)
     torch.save(artnet.state_dict(), os.path.join(params['ckpt_path'], 'artnet_final.pth'))
     return training_losses, validating_losses
 
