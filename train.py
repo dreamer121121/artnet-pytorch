@@ -119,65 +119,63 @@ def train(params, train_loader, validation_loader):
 
             optimizer.zero_grad()
             output = artnet(frames)
-            print("output.size()",output.size())
-            break
-        break
-        #     loss = criterion(output, label)
-        #     loss.backward()
-        #     optimizer.step()
-        #     training_loss += loss.item()
-        #
-        #     # Calculating accuracy
-        #     prediction = F.softmax(output, dim=1)
-        #     prediction = prediction.argmax(dim=1)
-        #     prediction, label = prediction.to('cpu'), label.to('cpu')
-        #     correct += prediction.eq(torch.LongTensor(label)).sum()
-        #
-        # else:
-        #     avg_loss = training_loss / len(train_loader)
-        #     accuracy = correct / (len(train_loader) * train_loader.batch_size)
-        #     training_losses.append(avg_loss)
-        #     print(f'Training loss: {avg_loss}')
-        #     print(f'Training accuracy: {accuracy:0.2f}')
-        #
-        # print('*********Validating*********')
-        # artnet.eval()
-        # validating_loss = 0
-        # validating_losses = []
-        # validating_progress = tqdm(enumerate(validation_loader))
-        # correct = 0
-        # with torch.no_grad():
-        #     for batch_index, (frames, label) in validating_progress:
-        #         validating_progress.set_description('Batch no. %i: ' % batch_index)
-        #         frames, label = frames.to(device), label.to(device)
-        #
-        #         output = artnet(frames)
-        #         loss = criterion(output, label)
-        #         validating_loss += loss.item()
-        #
-        #         # Calculating accuracy
-        #         _, prediction = output.max(dim=1)
-        #         prediction, label = prediction.to('cpu'), label.to('cpu')
-        #         correct += prediction.eq(torch.LongTensor(label)).sum()
-        #     else:
-        #         avg_loss = validating_loss / len(validation_loader)
-        #         accuracy = correct / (len(train_loader) * validation_loader.batch_size)
-        #         validating_losses.append(avg_loss)
-        #         print(f'Validation loss: {avg_loss}')
-        #         print(f'Validation accuracy: {accuracy:0.2f}')
-        # print('=============================================')
-        # print('Epoch %i complete' % (epoch + 1))
-        #
-        # if (epoch + 1) % params.getint('ckpt') == 0:
-        #     print('Saving checkpoint...' )
-        #     torch.save(artnet.state_dict(), os.path.join(params['ckpt_path'], 'artnet_%i.pth' % (epoch + 1)))
-        #
-        # # Update LR
-        # scheduler.step()
-    # print('Training complete, saving final model....')
-    # torch.save(artnet.state_dict(), os.path.join(params['ckpt_path'], 'artnet_final.pth'))
-    # return training_losses, validating_losses
-    #
+
+            loss = criterion(output, label)
+            loss.backward()
+            optimizer.step()
+            training_loss += loss.item()
+
+            # Calculating accuracy
+            prediction = F.softmax(output, dim=1)
+            prediction = prediction.argmax(dim=1)
+            prediction, label = prediction.to('cpu'), label.to('cpu')
+            correct += prediction.eq(torch.LongTensor(label)).sum()
+
+        else:
+            avg_loss = training_loss / len(train_loader)
+            accuracy = correct / (len(train_loader) * train_loader.batch_size)
+            training_losses.append(avg_loss)
+            print(f'Training loss: {avg_loss}')
+            print(f'Training accuracy: {accuracy:0.2f}')
+
+        print('*********Validating*********')
+        artnet.eval()
+        validating_loss = 0
+        validating_losses = []
+        validating_progress = tqdm(enumerate(validation_loader))
+        correct = 0
+        with torch.no_grad():
+            for batch_index, (frames, label) in validating_progress:
+                validating_progress.set_description('Batch no. %i: ' % batch_index)
+                frames, label = frames.to(device), label.to(device)
+
+                output = artnet(frames)
+                loss = criterion(output, label)
+                validating_loss += loss.item()
+
+                # Calculating accuracy
+                _, prediction = output.max(dim=1)
+                prediction, label = prediction.to('cpu'), label.to('cpu')
+                correct += prediction.eq(torch.LongTensor(label)).sum()
+            else:
+                avg_loss = validating_loss / len(validation_loader)
+                accuracy = correct / (len(train_loader) * validation_loader.batch_size)
+                validating_losses.append(avg_loss)
+                print(f'Validation loss: {avg_loss}')
+                print(f'Validation accuracy: {accuracy:0.2f}')
+        print('=============================================')
+        print('Epoch %i complete' % (epoch + 1))
+
+        if (epoch + 1) % params.getint('ckpt') == 0:
+            print('Saving checkpoint...' )
+            torch.save(artnet.state_dict(), os.path.join(params['ckpt_path'], 'artnet_%i.pth' % (epoch + 1)))
+
+        # Update LR
+        scheduler.step()
+    print('Training complete, saving final model....')
+    torch.save(artnet.state_dict(), os.path.join(params['ckpt_path'], 'artnet_final.pth'))
+    return training_losses, validating_losses
+
 
 
 def save_result(train_losses, val_losses, params):
