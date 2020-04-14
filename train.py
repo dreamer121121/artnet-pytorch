@@ -85,7 +85,7 @@ def load_data(params):
     return train_loader, validation_loader
 
 def train(params, train_loader, validation_loader):
-    start_epoch = params['start_epoch']
+    start_epoch = int(params['start_epoch'])
     artnet = ARTNet(num_classes=params.getint('num_classes'))
 
     #载入最新的保存点继续训练
