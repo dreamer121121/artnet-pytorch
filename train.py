@@ -92,7 +92,7 @@ def train(params, train_loader, validation_loader):
     checkpoints = os.listdir("./ckpt/")
     if len(checkpoints) > 0:
         checkpoints.sort()
-        torch.load(checkpoints[-1])
+        torch.load('./ckpt/'+checkpoints[-1])
 
     # device = 'cuda'
     device = 'cuda'
