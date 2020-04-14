@@ -8,7 +8,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-
 class SquarePool(nn.Module):
     """Square Pooling Layer"""
     #将每一个元素变为原来的平方

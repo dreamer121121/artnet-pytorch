@@ -18,6 +18,11 @@ from utils import log
 from video_dataset import VideoFramesDataset
 from artnet import ARTNet
 
+from tensorboardX import SummaryWriter
+
+#实例化一个写入器
+writer = SummaryWriter(log_dir='./logs/')
+
 log_file = "spatial.log"
 log_stream = open("spatial.log", "a")
 # Chnage mpl backend
@@ -80,7 +85,15 @@ def load_data(params):
     return train_loader, validation_loader
 
 def train(params, train_loader, validation_loader):
+    start_epoch = params['start_epoch']
     artnet = ARTNet(num_classes=params.getint('num_classes'))
+
+    #载入最新的保存点继续训练
+    checkpoints = os.listdir("./ckpt/")
+    if len(checkpoints) > 0:
+        checkpoints.sort()
+        torch.load(checkpoints[-1])
+
     # device = 'cuda'
     device = 'cuda'
 
@@ -106,7 +119,7 @@ def train(params, train_loader, validation_loader):
     lr_steps = [int(step) for step in params.get('lr_steps').split(',')]
     scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=lr_steps, gamma=0.1)
 
-    for epoch in range(params.getint('num_epochs')):
+    for epoch in range(start_epoch,params.getint('num_epochs')):
         log('Starting epoch %i:' % (epoch + 1),log_stream)
         log('*********Training*********',file=log_stream)
         artnet.train()
@@ -136,6 +149,7 @@ def train(params, train_loader, validation_loader):
 
         else:
             avg_loss = training_loss / len(train_loader)
+            writer.add_scalar("trainloss",avg_loss,epoch+1)
             accuracy = correct / (len(train_loader) * train_loader.batch_size)
             training_losses.append(avg_loss)
             log(f'Training loss: {avg_loss}',file=log_stream)
@@ -171,7 +185,7 @@ def train(params, train_loader, validation_loader):
 
         if (epoch + 1) % params.getint('ckpt') == 0:
             log('Saving checkpoint...' ,file=log_stream)
-            torch.save(artnet.state_dict(), os.path.join(params['ckpt_path'], 'artnet_%i.pth' % (epoch + 1)))
+            torch.save(artnet.state_dict(), os.path.join(params['ckpt_path'], 'artnet_%03i.pth' % (epoch + 1)))
 
         # Update LR
         scheduler.step()
