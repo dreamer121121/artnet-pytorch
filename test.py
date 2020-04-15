@@ -64,7 +64,7 @@ def test(params, test_loader, class_list):
         testing_progress.set_description('Batch no. %i: ' % batch_index)
         print(frames.shape,label)#[1,400,112,112]
         frames = frames.view(-1,16,3,112,112).cuda()
-        out = artnet(frames).numpy()#[25,101]
+        out = artnet(frames).data.cup().numpy()#[25,101]
         out = out.reshape(-1,25,101)
         predictions = []
         for index in range(len(out)):
