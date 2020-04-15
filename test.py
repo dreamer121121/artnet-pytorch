@@ -62,6 +62,7 @@ def test(params, test_loader, class_list):
     correct = 0
     for batch_index, (frames, label) in testing_progress:
         testing_progress.set_description('Batch no. %i: ' % batch_index)
+        label = label.data.cpu().float()
         print(frames.shape,label)#[1,400,112,112]
         frames = frames.view(-1,16,3,112,112).cuda()
         out = artnet(frames).data.cup().numpy()#[25,101]
@@ -72,7 +73,7 @@ def test(params, test_loader, class_list):
             pred = np.argmax(pred)
             predictions.append(pred)
         predictions = torch.tensor(predictions)
-        correct += predictions.eq(torch.LongTensor(label)).sum()
+        correct += predictions.eq(label).sum()
     print("correct:",correct)
 
 

@@ -79,7 +79,7 @@ class VideoFramesDataset(data.Dataset):
                 #采集这一段的new_length帧图片，RGB模态的为1帧，optical flow模态的为5帧
                 seg_img = self._load_image(frame_paths[p]) #读入一帧图片
                 images.append(seg_img)
-                if p < num_frames:
+                if p < num_frames-1:
                     p += 1
         process_data = [self.transform(frame) for frame in images]
         return process_data
