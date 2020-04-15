@@ -52,17 +52,17 @@ def test(params, test_loader, class_list):
     artnet = ARTNet(num_classes=len(class_list))
     artnet.load_state_dict(torch.load(params['model'],map_location='cpu'))
     artnet = artnet.to(device)
+    artnet.eval()
 
     testing_progress = tqdm(enumerate(test_loader))
     testing_result = []
     ground_truths = []
     batch_size = params.getint('batch_size')
-    # frame_num = params.getint('frame_num')
 
     for batch_index, (frames, label) in testing_progress:
         testing_progress.set_description('Batch no. %i: ' % batch_index)
         print(frames.shape,label)
-        frames = frames.view(-1,16,3,112,112)
+        frames = frames.view(-1,16,3,112,112).cuda()
         print(frames.shape)
         out = artnet(frames)
         print(out.shape)
