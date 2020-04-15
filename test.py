@@ -68,9 +68,10 @@ def test(params, test_loader, class_list):
         out = out.reshape(-1,25,101)
         predictions = []
         for index in range(len(out)):
-            pred = np.sum(out[index],axis=1)/25.
-            pred = pred.argmax(pred)
+            pred = np.sum(out[index],axis=0)/25.0
+            pred = np.argmax(pred)
             predictions.append(pred)
+        predictions = torch.tensor(predictions)
         correct += predictions.eq(torch.LongTensor(label)).sum()
     print("correct:",correct)
 
