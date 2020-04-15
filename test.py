@@ -38,7 +38,7 @@ def load_data(params):
         transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
     ])
 
-    test_set = VideoFramesDataset(params['path'], transform=transform)
+    test_set = VideoFramesDataset(params['path'],frame_num=16,transform=transform,num_segments=params.getint('num_segments'))
     class_list = test_set.cls_lst
 
     print('Done loading data')
@@ -50,36 +50,41 @@ def test(params, test_loader, class_list):
         device = 'cuda'
 
     artnet = ARTNet(num_classes=len(class_list))
-    artnet.load_state_dict(torch.load(params['model']))
+    artnet.load_state_dict(torch.load(params['model'],map_location='cpu'))
     artnet = artnet.to(device)
 
     testing_progress = tqdm(enumerate(test_loader))
     testing_result = []
     ground_truths = []
     batch_size = params.getint('batch_size')
-    frame_num = params.getint('frame_num')
+    # frame_num = params.getint('frame_num')
 
     for batch_index, (frames, label) in testing_progress:
         testing_progress.set_description('Batch no. %i: ' % batch_index)
+        print(frames.shape,label)
+        frames = frames.view(-1,16,3,112,112)
+        print(frames.shape)
+        out = artnet(frames)
+        print(out.shape)
 
         # Ensure that all samples have the equal amount of frames
-        leftover = frames.size()[1] % frame_num
-        if leftover != 0:
-            frames = torch.cat((frames, frames[:,-frame_num+leftover:,:,:,:]), dim=1)
+        # leftover = frames.size()[1] % frame_num
+        # if leftover != 0:
+        #     frames = torch.cat((frames, frames[:,-frame_num+leftover:,:,:,:]), dim=1)
 
         # Split all frames into frame groups
-        frames = torch.split(frames, frame_num, dim=1)
-        frames = torch.cat(frames)
-        predictions = torch.zeros((1, len(class_list)))
-        ground_truths.append(label)
-        for i in range(0, frames.size()[0], batch_size):
-            input = frames[i:i+batch_size]
-            input = input.to(device)
-            output = artnet(input)
-            output = F.softmax(output, dim=1)
-            output = output.sum(dim=0)
-            predictions += output
-        testing_result.append(predictions.argmax().item())
+        # frames = torch.split(frames, frame_num, dim=1)
+        # frames = torch.cat(frames)
+        # predictions = torch.zeros((1, len(class_list)))
+        # ground_truths.append(label)
+        # for i in range(0, frames.size()[0], batch_size):
+        #     input = frames[i:i+batch_size]
+        #     input = input.to(device)
+        #     output = artnet(input)
+        #     output = F.softmax(output, dim=1)
+        #     output = output.sum(dim=0)
+        #     predictions += output
+        # testing_result.append(predictions.argmax().item())
 
     testing_result = torch.Tensor(testing_result)
     ground_truths = torch.Tensor(ground_truths)

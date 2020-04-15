@@ -6,6 +6,7 @@ from torchvision import transforms
 import utils
 from torch.utils import data
 import json
+import  numpy as np
 # import resource
 
 # Nullify too many open files error
@@ -14,12 +15,13 @@ import json
 
 class VideoFramesDataset(data.Dataset):
     """Some Information about VideoFramesDataset"""
-    def __init__(self, root_dir, frame_num=0, transform=None):
+    def __init__(self, root_dir, frame_num=16, transform=None,num_segments=1):
         super(VideoFramesDataset, self).__init__()
 
         self.samples = []
         self.transform = transform
         self.frame_num = frame_num
+        self.num_segments = num_segments
 
         self.cls_lst = os.listdir(root_dir)  # 此处跟目录结构有关参看readme.md中的目录结构
         self.num_classes = len(self.cls_lst)  # 总的行为的类别数量
@@ -42,23 +44,45 @@ class VideoFramesDataset(data.Dataset):
             content = f.read()
             self.samples = json.loads(content)
 
+    def get_indices(self, frames_paths):
+        num_frames = len(frames_paths)
+        if num_frames > self.num_segments + self.frame_num - 1:
+            tick = (num_frames - self.frame_num + 1) / float(self.num_segments)
+            offsets = np.array([int(tick / 2.0 + tick * x) for x in range(self.num_segments)])
+        else:
+            offsets = np.zeros((self.num_segments,))
+        return offsets + 1
+
+    def _load_image(self,frame_path):
+        return Image.open(frame_path).convert('RGB')
 
     def __getitem__(self, index):
         sample = self.samples[index]
-        frame_paths = [os.path.join(sample[0], f) for f in os.listdir(sample[0])] #一段视频中的所有帧
+        frame_paths = [os.path.join(sample[0], f) for f in os.listdir(sample[0])] #当前这段视频中的所有帧
+        segment_indices = self.get_indices(frame_paths)
 
-        if self.frame_num > 1:
-            # Get a random sequence of frames
-            frame_index = random.randrange(0, len(frame_paths) - self.frame_num)
-            frame_paths = frame_paths[frame_index:frame_index + self.frame_num]
-
-        frames = [Image.open(f) for f in frame_paths]
-
-        if self.transform is not None:
-            frames = [self.transform(frame) for frame in frames]
+        # Get a random sequence of frames
+        frames = self.get(frame_paths,segment_indices)
 
         frames = torch.stack(frames)
         return frames, sample[1]
+
+    def get(self,frame_paths,indices):
+        #获取一段视频的三帧
+        # log(indices)
+        num_frames = len(frame_paths)
+        images = list()
+        for seg_ind in indices:
+            #分段采集
+            p = int(seg_ind)
+            for i in range(self.frame_num):
+                #采集这一段的new_length帧图片，RGB模态的为1帧，optical flow模态的为5帧
+                seg_img = self._load_image(frame_paths[p]) #读入一帧图片
+                images.append(seg_img)
+                if p < num_frames:
+                    p += 1
+        process_data = [self.transform(frame) for frame in images]
+        return process_data
 
     def __len__(self):
         return len(self.samples)
