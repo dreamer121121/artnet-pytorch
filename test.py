@@ -84,6 +84,7 @@ def test(params, test_loader, class_list):
     testing_result = torch.Tensor(testing_result)
     ground_truths = torch.Tensor(ground_truths)
     accuracy = torch.eq(testing_result, ground_truths).sum() / len(ground_truths)
+    return accuracy
 
 
 if __name__ == '__main__':
