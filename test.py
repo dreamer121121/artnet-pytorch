@@ -59,13 +59,23 @@ def test(params, test_loader, class_list):
     ground_truths = []
     batch_size = params.getint('batch_size')
 
+    correct = 0
     for batch_index, (frames, label) in testing_progress:
         testing_progress.set_description('Batch no. %i: ' % batch_index)
-        print(frames.shape,label)
+        print(frames.shape,label)#[1,400,112,112]
         frames = frames.view(-1,16,3,112,112).cuda()
-        print(frames.shape)
-        out = artnet(frames)
-        print(out.shape)
+        out = artnet(frames).numpy()#[25,101]
+        out = out.reshape(-1,25,101)
+        predictions = []
+        for index in range(len(out)):
+            pred = np.sum(out[index],axis=1)/25.
+            pred = pred.argmax(pred)
+            predictions.append(pred)
+        correct += predictions.eq(torch.LongTensor(label)).sum()
+    print("correct:",correct)
+
+
+
 
         # Ensure that all samples have the equal amount of frames
         # leftover = frames.size()[1] % frame_num
@@ -86,10 +96,10 @@ def test(params, test_loader, class_list):
         #     predictions += output
         # testing_result.append(predictions.argmax().item())
 
-    testing_result = torch.Tensor(testing_result)
-    ground_truths = torch.Tensor(ground_truths)
-    accuracy = torch.eq(testing_result, ground_truths).sum() / len(ground_truths)
-    return accuracy
+    # testing_result = torch.Tensor(testing_result)
+    # ground_truths = torch.Tensor(ground_truths)
+    # accuracy = torch.eq(testing_result, ground_truths).sum() / len(ground_truths)
+    # return accuracy
 
 
 if __name__ == '__main__':
