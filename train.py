@@ -140,12 +140,10 @@ def train(params, train_loader, validation_loader):
             print("predictioneqlabel:",prediction.eq(torch.LongTensor(label)).sum())
             correct += prediction.eq(torch.LongTensor(label)).sum().item()
             print("correct:",correct)
-            print('correct_type:',type(correct))
-            print("len(train_loader) * train_loader.batch_size)",type(len(train_loader) * train_loader.batch_size))
             print("acc:",correct/len(train_loader) * train_loader.batch_size)
         avg_loss = training_loss / len(train_loader)
         writer.add_scalar("trainloss",avg_loss,epoch+1)
-        log("correct on one epoch end"+str(correct),file=log_stream)
+        log("correct on one epoch end = "+str(correct),file=log_stream)
         accuracy = correct / (len(train_loader) * train_loader.batch_size)
         training_losses.append(avg_loss)
         log(f'Training loss: {avg_loss}',file=log_stream)
@@ -170,7 +168,7 @@ def train(params, train_loader, validation_loader):
                 # Calculating accuracy
                 prediction = output.argmax(dim=1) #???
                 prediction, label = prediction.to('cpu'), label.to('cpu')
-                correct += prediction.eq(torch.LongTensor(label)).sum()
+                correct += prediction.eq(torch.LongTensor(label)).sum().item()
             avg_loss = validating_loss / len(validation_loader)
             accuracy = correct / (len(train_loader) * validation_loader.batch_size)
             validating_losses.append(avg_loss)
