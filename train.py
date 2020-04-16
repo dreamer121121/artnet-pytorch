@@ -147,6 +147,8 @@ def train(params, train_loader, validation_loader):
             training_losses.append(avg_loss)
             log(f'Training loss: {avg_loss}',file=log_stream)
             log(f'Training accuracy: {accuracy:0.2f}',file=log_stream)
+            writer.add_scalar("train_loss",avg_loss,epoch+1)
+            writer.add_scalar("train_accuracy", avg_loss, epoch + 1)
 
         log('*********Validating*********',file=log_stream)
         artnet.eval()
@@ -172,6 +174,8 @@ def train(params, train_loader, validation_loader):
                 validating_losses.append(avg_loss)
                 log(f'Validation loss: {avg_loss}',file=log_stream)
                 log(f'Validation accuracy: {accuracy:0.2f}',file=log_stream)
+                writer.add_scalar("val_loss", avg_loss, epoch + 1)
+                writer.add_scalar("val_accuracy", avg_loss, epoch + 1)
         log('=============================================',file=log_stream)
         log('Epoch %i complete' % (epoch + 1),file=log_stream)
 
