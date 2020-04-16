@@ -39,7 +39,8 @@ def main():
     #加载数据
     train_loader, validation_loader = load_data(config['Train Data']) #返回数据生成器
     train_losses, val_losses = train(config['Train'], train_loader, validation_loader)
-    save_result(train_losses, val_losses, config['Train Result'])
+
+    # save_result(train_losses, val_losses, config['Train Result'])
 
 def load_data(params):
     """Load data for training"""
@@ -54,34 +55,23 @@ def load_data(params):
         transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
     ])
 
-    train_set = VideoFramesDataset(params['path'], frame_num=16, transform=transform)
-    dataset_size = len(train_set)
-
-    indices = list(range(dataset_size))
-    split = int(np.floor(params.getfloat('val_split') * dataset_size))
+    train_set = VideoFramesDataset(params['path'], frame_num=16, transform=transform,split='./train_rgb_split1.txt')
+    val_set = VideoFramesDataset(params['path'],frame_num=16,transform=transform,split='./val_rgb_split1.txt')
 
     # Shuffle dataset
-    if params.getboolean('shuffle'):
-        np.random.seed(42)
-        np.random.shuffle(indices)
 
-    train_indices, val_indices = indices[split:], indices[:split]
-
-    #设置采样器
-    train_sampler = SubsetRandomSampler(train_indices) #含有__itr__方法是一个迭代器
-    valid_sampler = SubsetRandomSampler(val_indices)
     batch_size = params.getint('batch_size')
 
     #注意此处训练集和验证集都传入的是train_set，通过采样器来进行划分训练集和验证集
-    train_loader = DataLoader(train_set, batch_size=batch_size, sampler=train_sampler)
-    validation_loader = DataLoader(train_set, batch_size=batch_size, sampler=valid_sampler)
+    train_loader = DataLoader(train_set, batch_size=batch_size)
+    validation_loader = DataLoader(val_set, batch_size=batch_size)
     log('Done loading data',file=log_stream)
 
     log('****Dataset info****',file=log_stream)
     log(f'Number of classes: {train_set.num_classes}',file=log_stream)
     log(f'Class list: {", ".join(train_set.cls_lst)}',file=log_stream)
-    log(f'Numer of training samples: {len(train_loader) * batch_size}',file=log_stream)
-    log(f'Numer of validation samples: {len(validation_loader) * batch_size}',file=log_stream)
+    log(f'Numer of training samples: {len(train_set)}',file=log_stream)
+    log(f'Numer of validation samples: {len(val_set)}',file=log_stream)
     return train_loader, validation_loader
 
 def train(params, train_loader, validation_loader):
@@ -131,7 +121,7 @@ def train(params, train_loader, validation_loader):
 
             training_progress.set_description('Batch no. %i: ' % batch_index)
             frames, label = frames.to(device), label.to(device)
-            # print("frames.shape:",frames.size()) #[N,16,3,112,112]
+            print("frames.shape:",frames.size()) #[N,16,3,112,112]
 
             optimizer.zero_grad()
             output = artnet(frames)

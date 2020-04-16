@@ -15,21 +15,24 @@ import  numpy as np
 
 class VideoFramesDataset(data.Dataset):
     """Some Information about VideoFramesDataset"""
-    def __init__(self, root_dir, frame_num=16, transform=None,num_segments=1):
+    def __init__(self, root_dir, frame_num=16, transform=None,num_segments=1,split=''):
         super(VideoFramesDataset, self).__init__()
 
         self.samples = []
         self.transform = transform
         self.frame_num = frame_num
         self.num_segments = num_segments
+        self.split = split
 
         self.cls_lst = os.listdir(root_dir)  # 此处跟目录结构有关参看readme.md中的目录结构
         self.num_classes = len(self.cls_lst)  # 总的行为的类别数量
 
-        with open('train_rgb_split.txt','r') as f:
+        with open(split,'r') as f:
             lines = f.readlines()
-
-
+            for line in lines:
+                video_name,total_num,classid = line.split(' ')
+                video_class = video_name.split("_")[1]
+                self.samples.append((root_dir+video_class+'/'+video_name,line[2]))
 
         # Import data in root_dir, each subfolder corresponds to a class label
         # if not os.path.exists('vidoe2classid.txt'):
