@@ -40,9 +40,10 @@ def load_data(params):
 
     test_set = VideoFramesDataset(params['path'],frame_num=16,transform=transform,num_segments=params.getint('num_segments'))
     class_list = test_set.cls_lst
+    batch_size = params.getint('batch_size')
 
     print('Done loading data')
-    return DataLoader(test_set, batch_size=1), class_list
+    return DataLoader(test_set, batch_size=batch_size), class_list
 
 def test(params, test_loader, class_list):
     device = 'cpu'
@@ -55,15 +56,13 @@ def test(params, test_loader, class_list):
     artnet.eval()
 
     testing_progress = tqdm(enumerate(test_loader))
-    testing_result = []
-    ground_truths = []
-    batch_size = params.getint('batch_size')
 
     correct = 0
     for batch_index, (frames, label) in testing_progress:
         testing_progress.set_description('Batch no. %i: ' % batch_index)
         label = label.data.cpu().float()
         print(frames.shape,label)#[1,400,112,112]
+        print("label:",label)
         frames = frames.view(-1,16,3,112,112).cuda()
         out = artnet(frames).data.cup().numpy()#[25,101]
         out = out.reshape(-1,25,101)
@@ -72,6 +71,7 @@ def test(params, test_loader, class_list):
             pred = np.sum(out[index],axis=0)/25.0
             pred = np.argmax(pred)
             predictions.append(pred)
+        print("predictions:",predictions)
         predictions = torch.tensor(predictions)
         correct += predictions.eq(label).sum()
     print("correct:",correct)

@@ -25,24 +25,30 @@ class VideoFramesDataset(data.Dataset):
 
         self.cls_lst = os.listdir(root_dir)  # 此处跟目录结构有关参看readme.md中的目录结构
         self.num_classes = len(self.cls_lst)  # 总的行为的类别数量
+
+        with open('train_rgb_split.txt','r') as f:
+            lines = f.readlines()
+
+
+
         # Import data in root_dir, each subfolder corresponds to a class label
-        if not os.path.exists('vidoe2classid.txt'):
-            #将视频数据进行处理（video_path,classid）并存入文件中
-            print("=====begin process videos=====")
-            for i in range(self.num_classes): #(video_path,class_id)存储在self.samples数组中
-                cls_dir = os.path.join(root_dir, self.cls_lst[i])
-                for video in os.listdir(cls_dir):
-                    video_path = os.path.join(cls_dir, video)
-                    if len(os.listdir(video_path)) > self.frame_num:
-                        self.samples.append((os.path.join(cls_dir, video), i) )
-            # 缓存到文件中
-            with open('vidoe2classid.txt', 'w') as f:
-                content = json.dumps(self.samples)
-                f.write(content)
-        else:
-            f = open('vidoe2classid.txt','r')
-            content = f.read()
-            self.samples = json.loads(content)
+        # if not os.path.exists('vidoe2classid.txt'):
+        #     #将视频数据进行处理（video_path,classid）并存入文件中
+        #     print("=====begin process videos=====")
+        #     for i in range(self.num_classes): #(video_path,class_id)存储在self.samples数组中
+        #         cls_dir = os.path.join(root_dir, self.cls_lst[i])
+        #         for video in os.listdir(cls_dir):
+        #             video_path = os.path.join(cls_dir, video)
+        #             if len(os.listdir(video_path)) > self.frame_num:
+        #                 self.samples.append((os.path.join(cls_dir, video), i) )
+        #     # 缓存到文件中
+        #     with open('vidoe2classid.txt', 'w') as f:
+        #         content = json.dumps(self.samples)
+        #         f.write(content)
+        # else:
+        #     f = open('vidoe2classid.txt','r')
+        #     content = f.read()
+        #     self.samples = json.loads(content)
 
     def get_indices(self, frames_paths):
         num_frames = len(frames_paths)
