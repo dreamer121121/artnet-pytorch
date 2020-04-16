@@ -83,6 +83,7 @@ def train(params, train_loader, validation_loader):
     if len(checkpoints) > 0:
         checkpoints.sort()
         torch.load('./ckpt/'+checkpoints[-1])
+        log("load latest checkpoint %s"%checkpoints[-1],file=log_stream)
 
     # device = 'cuda'
     device = 'cuda'
@@ -140,7 +141,7 @@ def train(params, train_loader, validation_loader):
             print("predictioneqlabel:",prediction.eq(torch.LongTensor(label)).sum())
             correct += prediction.eq(torch.LongTensor(label)).sum().item()
             print("correct:",correct)
-            print("acc:",correct/len(train_loader) * train_loader.batch_size)
+            print("acc:",correct/(len(train_loader) * train_loader.batch_size))
         avg_loss = training_loss / len(train_loader)
         writer.add_scalar("trainloss",avg_loss,epoch+1)
         log("correct on one epoch end = "+str(correct),file=log_stream)
