@@ -170,6 +170,7 @@ def train(params, train_loader, validation_loader):
                 prediction = output.argmax(dim=1) #???
                 prediction, label = prediction.to('cpu'), label.to('cpu')
                 correct += prediction.eq(torch.LongTensor(label)).sum().item()
+            log("val correct on epoch end = ",correct)
             avg_loss = validating_loss / len(validation_loader)
             accuracy = correct / (len(train_loader) * validation_loader.batch_size)
             validating_losses.append(avg_loss)
