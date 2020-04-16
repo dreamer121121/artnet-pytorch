@@ -118,7 +118,7 @@ def train(params, train_loader, validation_loader):
         artnet.train()
         training_loss = 0
         training_progress = tqdm(enumerate(train_loader))
-        correct = 0
+        correct = 0.0
         for batch_index, (frames, label) in training_progress:
             print("frames.shape:",frames.size()) #[N,16,3,112,112]
             print("label:",label)
@@ -145,7 +145,7 @@ def train(params, train_loader, validation_loader):
         avg_loss = training_loss / len(train_loader)
         writer.add_scalar("trainloss",avg_loss,epoch+1)
         log("correct on one epoch end = "+str(correct),file=log_stream)
-        accuracy = correct / (len(train_loader) * train_loader.batch_size)
+        accuracy = correct / (len(validation_loader) * validation_loader.batch_size)
         training_losses.append(avg_loss)
         log(f'Training loss: {avg_loss}',file=log_stream)
         log(f'Training accuracy: {accuracy:0.7f}',file=log_stream)
@@ -156,7 +156,7 @@ def train(params, train_loader, validation_loader):
         artnet.eval()
         validating_loss = 0
         validating_progress = tqdm(enumerate(validation_loader))
-        correct = 0
+        correct = 0.0
         with torch.no_grad():
             for batch_index, (frames, label) in validating_progress:
                 validating_progress.set_description('Batch no. %i: ' % batch_index)
@@ -172,10 +172,10 @@ def train(params, train_loader, validation_loader):
                 correct += prediction.eq(torch.LongTensor(label)).sum().item()
             log("val correct on epoch end = %d"%correct,file=log_stream)
             avg_loss = validating_loss / len(validation_loader)
-            accuracy = correct / (len(train_loader) * validation_loader.batch_size)
+            accuracy = correct / (len(validation_loader) * validation_loader.batch_size)
             validating_losses.append(avg_loss)
             log(f'Validation loss: {avg_loss}',file=log_stream)
-            log(f'Validation accuracy: {accuracy:0.2f}',file=log_stream)
+            log(f'Validation accuracy: {accuracy:0.7f}',file=log_stream)
             writer.add_scalar("val_loss", avg_loss, epoch + 1)
             writer.add_scalar("val_accuracy", avg_loss, epoch + 1)
         log('=============================================',file=log_stream)
