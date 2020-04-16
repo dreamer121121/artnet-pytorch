@@ -112,7 +112,7 @@ def train(params, train_loader, validation_loader):
     training_losses = [] #记录每一个epoch的训练损失
     validating_losses = [] #记录每一个epoch的验证损失
     for epoch in range(start_epoch,params.getint('num_epochs')):
-        log('Starting epoch %i:' % (epoch + 1),log_stream)
+        log('Starting epoch %i:' % (epoch + 1),file=log_stream)
         log('*********Training*********',file=log_stream)
         artnet.train()
         training_loss = 0
