@@ -109,12 +109,13 @@ def train(params, train_loader, validation_loader):
     lr_steps = [int(step) for step in params.get('lr_steps').split(',')]
     scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=lr_steps, gamma=0.1)
 
+    training_losses = [] #记录每一个epoch的训练损失
+    validating_losses = [] #记录每一个epoch的验证损失
     for epoch in range(start_epoch,params.getint('num_epochs')):
         log('Starting epoch %i:' % (epoch + 1),log_stream)
         log('*********Training*********',file=log_stream)
         artnet.train()
         training_loss = 0
-        training_losses = []
         training_progress = tqdm(enumerate(train_loader))
         correct = 0
         for batch_index, (frames, label) in training_progress:
@@ -137,6 +138,7 @@ def train(params, train_loader, validation_loader):
             print("predict",prediction)
             prediction, label = prediction.to('cpu'), label.to('cpu')
             correct += prediction.eq(torch.LongTensor(label)).sum()
+            print("correct:",correct)
 
         else:
             avg_loss = training_loss / len(train_loader)
@@ -149,7 +151,6 @@ def train(params, train_loader, validation_loader):
         log('*********Validating*********',file=log_stream)
         artnet.eval()
         validating_loss = 0
-        validating_losses = []
         validating_progress = tqdm(enumerate(validation_loader))
         correct = 0
         with torch.no_grad():
