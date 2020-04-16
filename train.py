@@ -118,9 +118,6 @@ def train(params, train_loader, validation_loader):
         training_progress = tqdm(enumerate(train_loader))
         correct = 0
         for batch_index, (frames, label) in training_progress:
-            print("frames:",type(frames))
-            print("label:",type(label))
-            print("label:",label)
             print("frames.shape:",frames.size()) #[N,16,3,112,112]
             training_progress.set_description('Batch no. %i: ' % batch_index)
             frames, label = frames.to(device), label.to(device)
@@ -135,7 +132,9 @@ def train(params, train_loader, validation_loader):
 
             # Calculating accuracy
             prediction = F.softmax(output, dim=1)
+            print("predictions:",prediction)
             prediction = prediction.argmax(dim=1)
+            print("predict",prediction)
             prediction, label = prediction.to('cpu'), label.to('cpu')
             correct += prediction.eq(torch.LongTensor(label)).sum()
 
