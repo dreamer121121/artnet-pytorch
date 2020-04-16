@@ -133,7 +133,6 @@ def train(params, train_loader, validation_loader):
 
             # Calculating accuracy
             prediction = F.softmax(output, dim=1)
-            print("predictions:",prediction)
             prediction = prediction.argmax(dim=1)
             print("predict",prediction)
             prediction, label = prediction.to('cpu'), label.to('cpu')
