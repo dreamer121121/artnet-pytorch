@@ -34,6 +34,7 @@ class VideoFramesDataset(data.Dataset):
                 video_name,total_num,classid = line.split(' ')
                 video_class = video_name.split("_")[1]
                 self.samples.append((root_dir+video_class+'/'+video_name,int(classid[0])))
+                
 
         # Import data in root_dir, each subfolder corresponds to a class label
         # if not os.path.exists('vidoe2classid.txt'):
