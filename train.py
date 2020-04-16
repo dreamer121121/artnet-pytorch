@@ -194,13 +194,12 @@ def train(params, train_loader, validation_loader):
 def save_result(train_losses, val_losses, params):
     """Saving result in term of training loss and validation loss"""
 
-    import json
-    train_loss = json.dumps(train_losses)
-    val_loss = json.dumps(val_losses)
-    f = open("loss_history",'w')
-    f.write(train_loss)
-    f.write(val_loss)
-    f.close()
+    # Save log
+    file_path = os.path.join(os.path.join(params['path'], 'result.txt'))
+    with open(file_path, 'w') as f:
+        for i in range(len(train_losses)):
+            f.write('Epoch %i: training loss - %0.4f, validation loss - %0.4f\n' % (i + 1, train_losses[i], val_losses[i]))
+
     # Save chart
     data = { 'epoch': range(1, len(train_losses) + 1), 'train': train_losses, 'val': val_losses}
     plt.plot('epoch', 'train', data=data, label='Training loss', color='blue' )
@@ -208,11 +207,6 @@ def save_result(train_losses, val_losses, params):
     plt.legend()
     plt.savefig(os.path.join(params['path'], 'result.png'))
 
-    # Save log
-    file_path = os.path.join(os.path.join(params['path'], 'result.txt'))
-    with open(file_path, 'w') as f:
-        for i in range(len(train_losses)):
-            f.write('Epoch %i: training loss - %0.4f, validation loss - %0.4f\n' % (i + 1, train_losses[i], val_losses[i]))
 
 if __name__ == '__main__':
     main()
