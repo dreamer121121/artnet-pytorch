@@ -120,6 +120,7 @@ def train(params, train_loader, validation_loader):
         correct = 0
         for batch_index, (frames, label) in training_progress:
             print("frames.shape:",frames.size()) #[N,16,3,112,112]
+            print("label:",label)
             training_progress.set_description('Batch no. %i: ' % batch_index)
             frames, label = frames.to(device), label.to(device)
 
