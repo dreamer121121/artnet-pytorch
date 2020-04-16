@@ -194,6 +194,13 @@ def train(params, train_loader, validation_loader):
 def save_result(train_losses, val_losses, params):
     """Saving result in term of training loss and validation loss"""
 
+    import json
+    train_loss = json.dumps(train_losses)
+    val_loss = json.dumps(val_losses)
+    f = open("loss_history",'w')
+    f.write(train_loss)
+    f.write(val_loss)
+    f.close()
     # Save chart
     data = { 'epoch': range(1, len(train_losses) + 1), 'train': train_losses, 'val': val_losses}
     plt.plot('epoch', 'train', data=data, label='Training loss', color='blue' )
