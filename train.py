@@ -125,12 +125,12 @@ def train(params, train_loader, validation_loader):
             training_progress.set_description('Batch no. %i: ' % batch_index)
             frames, label = frames.to(device), label.to(device)
 
-            optimizer.zero_grad()
+            optimizer.zero_grad() #梯度清零
             output = artnet(frames)
 
             loss = criterion(output, label)
             loss.backward()
-            optimizer.step()
+            optimizer.step() #更新参数
             training_loss += loss.item()
 
             # Calculating accuracy
@@ -162,9 +162,10 @@ def train(params, train_loader, validation_loader):
             for batch_index, (frames, label) in validating_progress:
                 validating_progress.set_description('Batch no. %i: ' % batch_index)
                 frames, label = frames.to(device), label.to(device)
-
                 output = artnet(frames)
                 loss = criterion(output, label)
+                print("val loss each itera:",loss)
+                print("val loss type",type(loss))
                 validating_loss += loss.item()
 
                 # Calculating accuracy
