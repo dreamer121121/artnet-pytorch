@@ -173,6 +173,7 @@ def train(params, train_loader, validation_loader):
                 correct += prediction.eq(torch.LongTensor(label)).sum().item()
             log("val correct on epoch end = "+str(correct),file=log_stream)
             log("val data num:{}".format(len(validation_loader) * validation_loader.batch_size),file=log_stream)
+            log("validation loss on epoch end = "+str(validating_loss),file=log_stream)
             avg_loss = validating_loss / len(validation_loader)
             accuracy = correct / (len(validation_loader) * validation_loader.batch_size)
             validating_losses.append(avg_loss)
