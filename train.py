@@ -63,8 +63,8 @@ def load_data(params):
     batch_size = params.getint('batch_size')
 
     #注意此处训练集和验证集都传入的是train_set，通过采样器来进行划分训练集和验证集
-    train_loader = DataLoader(train_set, batch_size=batch_size)
-    validation_loader = DataLoader(val_set, batch_size=batch_size)
+    train_loader = DataLoader(train_set, batch_size=batch_size,shuffle=True)
+    validation_loader = DataLoader(val_set, batch_size=batch_size,shuffle=True)
     log('Done loading data',file=log_stream)
 
     log('****Dataset info****',file=log_stream)
