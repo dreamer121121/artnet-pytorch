@@ -116,7 +116,7 @@ def train(params, train_loader, validation_loader):
         log('Starting epoch %i:' % (epoch + 1),file=log_stream)
         log('*********Training*********',file=log_stream)
         artnet.train()
-        training_loss = 0
+        training_loss = 0.0
         training_progress = tqdm(enumerate(train_loader))
         correct = 0.0
         for batch_index, (frames, label) in training_progress:
@@ -155,7 +155,7 @@ def train(params, train_loader, validation_loader):
 
         log('*********Validating*********',file=log_stream)
         artnet.eval()
-        validating_loss = 0
+        validating_loss = 0.0
         validating_progress = tqdm(enumerate(validation_loader))
         correct = 0.0
         with torch.no_grad():
