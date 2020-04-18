@@ -82,7 +82,7 @@ def train(params, train_loader, validation_loader):
     checkpoints = os.listdir("./ckpt/")
     if len(checkpoints) > 0:
         checkpoints.sort()
-        torch.load('./ckpt/'+checkpoints[-1])
+        artnet.load_state_dict(torch.load('./ckpt/'+checkpoints[-1]))
         log("load latest checkpoint %s"%checkpoints[-1],file=log_stream)
 
     # device = 'cuda'
